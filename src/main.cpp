@@ -76,7 +76,7 @@ void setup()
 
   //Calibração
   lineFollower.calibrateSensors();
-
+  //Asd
 
   Serial.begin(115200);  
 }
@@ -85,6 +85,6 @@ void loop()
 {
   // lineFollower.motorController -> motorTest();
 
-  //Aqui estou testando o commit
   lineFollower.run();
+  
 }
