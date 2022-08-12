@@ -6,7 +6,13 @@
 #include "GenericPid.h"
 #include "Motorlib.h"
 #include "SensorLib.h"
-#include "Vector.h"
+
+
+namespace global
+{
+    const int numberOfSensor = 10;
+}
+
 
 class LineFollowerAlgorithm
 {
@@ -17,8 +23,9 @@ public:
 
 
 
+
     //Adiciona sensores ao vetor de sensores
-    void addSensor(sensorTcrt5000 sensor);
+    void addSensor(sensorTcrt5000 sensor, int index);
 
     //Calibra os sensores
     void calibrateSensors();
@@ -30,14 +37,14 @@ public:
     void run();
 
 
-    Vector<sensorTcrt5000> sensorVector;
+    sensorTcrt5000 sensorArr [global::numberOfSensor];
     Tb6612fng* motorController;
 
 
 protected:
     float calculateSensValue();
 
-    unsigned int numberOfSensors;
+    int numberOfSensors = global::numberOfSensor;
     
     // Qual o objetivo, nesse caso por a linha entre o sensor S4 e S5
     float readingGoal = 4.5;

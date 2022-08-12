@@ -6,6 +6,7 @@
 class sensorTcrt5000
 {
 public:
+	sensorTcrt5000();
 	sensorTcrt5000(int pino);
 	sensorTcrt5000(int pino, int offsetRuido);
 	

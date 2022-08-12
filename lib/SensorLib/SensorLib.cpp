@@ -1,6 +1,11 @@
 #include "SensorLib.h"
 
 
+sensorTcrt5000::sensorTcrt5000()
+{
+	pin = 0;
+}
+
 sensorTcrt5000::sensorTcrt5000(int pino)
 {
 	pin = pino;

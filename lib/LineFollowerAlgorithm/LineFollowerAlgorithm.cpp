@@ -20,10 +20,9 @@ LineFollowerAlgorithm::LineFollowerAlgorithm(Pid pidValues, Tb6612fng& _motorCon
 }
 
 
-void LineFollowerAlgorithm::addSensor(sensorTcrt5000 sensor)
+void LineFollowerAlgorithm::addSensor(sensorTcrt5000 sensor, int index)
 {
-    sensorVector.push_back(sensor);
-    numberOfSensors++;
+    sensorArr[index] = sensor;
 }
 
 void LineFollowerAlgorithm::calibrateSensors()
@@ -32,9 +31,9 @@ void LineFollowerAlgorithm::calibrateSensors()
     while(repeat)
     {
         repeat = false;
-        for(int i = 0; i < sensorVector.size(); i++)
+        for(int i = 0; i < numberOfSensors; i++)
         {
-            if(!sensorVector[i].calibrate())
+            if(!sensorArr[i].calibrate())
                 repeat = true;
         }
     }
@@ -75,9 +74,9 @@ float LineFollowerAlgorithm::calculateSensValue()
   //Numero de sensores em cima da linha
   int numOfTrueSensors = 0;
   
-  for(int i = 0; i < sensorVector.size(); i++)
+  for(int i = 0; i < numberOfSensors; i++)
   {
-    if(sensorVector[i].readValue())
+    if(sensorArr[i].readValue())
     {
       result += float(i);
       numOfTrueSensors++;
