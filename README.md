@@ -1,4 +1,4 @@
-# NovoSeguidorPID
+# Seguidor de linha PID
 
 <ul style="list-style-type: circle;">
     <li style="font-family: Calibri, sans-serif; font-size: 22px;"><strong>O que &eacute;?</strong>
