@@ -11,7 +11,7 @@
         <ul style="font-size: initial; list-style-type: disc; font-family: initial;">
             <li style="font-family: Calibri, sans-serif;">A base de c&oacute;digos deste projeto busca agir como uma base para desenvolvimento de rob&ocirc;s seguidores de linha, sendo programado de forma generalizada permitindo que o usu&aacute;rio altere para servir melhor a sua plataforma.</li>
             <li style="font-family: Calibri, sans-serif;">Faz uso de um <a href="https://github.com/RafaelFariasUTFPR/GenericPid" rel="noopener noreferrer" target="_blank">Algoritmo de PID</a>&nbsp;simples.</li>
-            <li>Procura tambem fazer testes de implementação de algoritimos de MPC (Model predictive control)</li>
+            <li>Procura tambem fazer testes de implementação de algoritimos de MPC (Model predictive control) e LQR (Linear Quadratic Regulator).</li>
         </ul>
     </li>
 </ul>
