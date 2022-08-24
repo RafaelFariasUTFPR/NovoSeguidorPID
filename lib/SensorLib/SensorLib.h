@@ -16,18 +16,19 @@ public:
 	int readValue();
 
 	bool calibrate();
-
+	void getBackgroundColor();
 	
 
 
 	int pin; //Qual pino o sensor est� ligado
-	
+	bool lineIsBlack = true;
+	int backgrounAnalogValue, lineAnalogValue;
 
 	int threshold = 1000; //Offset antes de retornar true ( retira o ru�do ) 
 
 	int sensorReadOffset = 100;
 
-protected:
+private:
 	bool calibrated = false;
 };
 

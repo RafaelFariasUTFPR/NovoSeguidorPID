@@ -25,18 +25,39 @@ void LineFollowerAlgorithm::addSensor(sensorTcrt5000 sensor, int index)
     sensorArr[index] = sensor;
 }
 
+void LineFollowerAlgorithm::calibrateBackground()
+{
+  int backGroundReadArr[global::numberOfSensor];
+  for(int i = 0; i < global::numberOfSensor; i++)
+  {
+    backGroundReadArr[i] = 0;
+  }
+  // Lendo a média do background
+  //Repete por i vezes
+  int repeatNumber = 50;
+  for(int i = 0; i < repeatNumber; i++)
+  {
+    for(int j = 0; j < global::numberOfSensor; j++)
+    {
+      backGroundReadArr[j] += sensorArr[j].readValueAnalog();
+    }
+    delay(10);
+  }
+
+  for(int i = 0; i < global::numberOfSensor; i++)
+  {
+    backGroundReadArr[i] = backGroundReadArr[i] / repeatNumber;
+    sensorArr[i].backgrounAnalogValue = backGroundReadArr[i];
+  }
+
+}
+
 void LineFollowerAlgorithm::calibrateSensors()
 {
-    bool repeat = true;
-    while(repeat)
-    {
-        repeat = false;
-        for(int i = 0; i < numberOfSensors; i++)
-        {
-            if(!sensorArr[i].calibrate())
-                repeat = true;
-        }
-    }
+  calibrateBackground();
+    
+  
+
 
 }
 

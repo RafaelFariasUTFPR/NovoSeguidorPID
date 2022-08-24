@@ -43,6 +43,7 @@ public:
 
 protected:
     float calculateSensValue();
+    void calibrateBackground();
 
     int numberOfSensors = global::numberOfSensor;
     
@@ -56,6 +57,7 @@ protected:
     // Controla a velocidade dos motores -1 a 1
     float leftMotor;
     float rightMotor;
+	bool lineIsBlack = true;
 
     float maxSpeed = 0.8;
     
