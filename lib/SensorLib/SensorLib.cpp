@@ -11,10 +11,10 @@ sensorTcrt5000::sensorTcrt5000(int pino)
 	pin = pino;
 }
 
-sensorTcrt5000::sensorTcrt5000(int pino, int offsetRuido)
+sensorTcrt5000::sensorTcrt5000(int pino, int _midPoint)
 {
 	pin = pino;
-	threshold = offsetRuido;
+	midPoint = _midPoint;
 }
 
 
@@ -26,32 +26,23 @@ int sensorTcrt5000::readValueAnalog()
 
 int sensorTcrt5000::readValue()
 {
-	if (analogRead(pin) > threshold)
+	if (analogRead(pin) > midPoint)
 		return 1;
 	return 0;
 }
 
 
-bool sensorTcrt5000::calibrate()
+void sensorTcrt5000::calibrate()
 {
-	//Talvez essa função esteja ao contrário, ou seja talvez seja necessario
-	//inverter as adições e o loop, para que ele diminua ao invez de crescer
 
-	if(calibrated)
-		return true;
+	if(readValueAnalog() < lowValue)
+		lowValue = readValueAnalog();
+
+	if(readValueAnalog() > highValue)
+		highValue = readValueAnalog();
 	
-	for(int i = 0; i <= 4095; i += 50)
-	{
-		//Altera o valor do threshold, alterando assim a função "readValue()"
-		threshold = i;
-		if(readValue())
-		{
-			threshold += sensorReadOffset;
-			calibrated = true;
-			return true;
-		}
-	}
-
-	//Retorna verdadeiro caso a calibração tenha funcionado
-	return false;
+	midPoint = (lowValue + highValue) / 2; 
+	
+	Serial.print(midPoint);
+	Serial.print(",");
 }

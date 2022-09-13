@@ -27,8 +27,7 @@ public:
     //Adiciona sensores ao vetor de sensores
     void addSensor(sensorTcrt5000 sensor, int index);
 
-    //Calibra os sensores
-    void calibrateSensors();
+
 
 
     void setPidValues(Pid pidValues);
@@ -36,14 +35,29 @@ public:
 
     void run();
 
+    void process();
+
+    // ##### DEBUG #####
+    void printAllSensors();
+    void printAllSensorsAnalog();
+
+    void testMotors();
+
+    // ##### ##### #####
+    
+    float motorMultiplier = 0.5;
 
     sensorTcrt5000 sensorArr [global::numberOfSensor];
     Tb6612fng* motorController;
 
+    bool isRunning = false;
+    bool isCallibrating = false; // Se for true entrará no modo de calibração
 
-protected:
+private:
     float calculateSensValue();
-    void calibrateBackground();
+
+    //Calibra os sensores
+    void calibrateSensors();
 
     int numberOfSensors = global::numberOfSensor;
     

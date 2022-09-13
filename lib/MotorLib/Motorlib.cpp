@@ -66,6 +66,8 @@ void Tb6612fng::motorSetup()
 
 	digitalWrite(STBY, HIGH);
 
+	Serial.println("MotorAtivado");
+
 	ledcSetup(PWM_Left, PWM_Freq, PWM_Res);
 	ledcAttachPin(PWMA, PWM_Left);
 

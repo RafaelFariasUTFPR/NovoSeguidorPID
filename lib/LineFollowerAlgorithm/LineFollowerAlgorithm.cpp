@@ -25,40 +25,11 @@ void LineFollowerAlgorithm::addSensor(sensorTcrt5000 sensor, int index)
     sensorArr[index] = sensor;
 }
 
-void LineFollowerAlgorithm::calibrateBackground()
-{
-  int backGroundReadArr[global::numberOfSensor];
-  for(int i = 0; i < global::numberOfSensor; i++)
-  {
-    backGroundReadArr[i] = 0;
-  }
-  // Lendo a média do background
-  //Repete por i vezes
-  int repeatNumber = 50;
-  for(int i = 0; i < repeatNumber; i++)
-  {
-    for(int j = 0; j < global::numberOfSensor; j++)
-    {
-      backGroundReadArr[j] += sensorArr[j].readValueAnalog();
-    }
-    delay(10);
-  }
-
-  for(int i = 0; i < global::numberOfSensor; i++)
-  {
-    backGroundReadArr[i] = backGroundReadArr[i] / repeatNumber;
-    sensorArr[i].backgrounAnalogValue = backGroundReadArr[i];
-  }
-
-}
 
 void LineFollowerAlgorithm::calibrateSensors()
 {
-  calibrateBackground();
-    
-  
-
-
+    for(int i = 0; i < numberOfSensors; i++)
+      sensorArr[i].calibrate();
 }
 
 
@@ -82,7 +53,8 @@ void LineFollowerAlgorithm::run()
   leftMotor += pidLeft.calculate(sensorValue - readingGoal);
   rightMotor += pidRight.calculate(readingGoal - sensorValue);
 
-
+  leftMotor *= motorMultiplier;
+  rightMotor *= motorMultiplier;
   motorController -> driveMotor(leftMotor, rightMotor);
 
 }
@@ -106,4 +78,43 @@ float LineFollowerAlgorithm::calculateSensValue()
 
   //Retorna a média dos sensores ativos
   return result / numOfTrueSensors;
+}
+
+void LineFollowerAlgorithm::printAllSensors()
+{
+  for(int i = 0; i < global::numberOfSensor; i++)
+  {
+    Serial.print(sensorArr[i].readValue());
+    Serial.print(",");
+
+  }
+  Serial.print("\n");
+}
+void LineFollowerAlgorithm::printAllSensorsAnalog()
+{
+  for(int i = 0; i < global::numberOfSensor; i++)
+  {
+    Serial.print(sensorArr[i].readValueAnalog());
+    Serial.print(",");
+
+  }
+  Serial.print("\n");
+}
+
+void LineFollowerAlgorithm::testMotors()
+{
+  motorController ->motorTest();
+}
+
+void LineFollowerAlgorithm::process()
+{
+  if(isCallibrating)
+    calibrateSensors();
+
+  if(isRunning)
+    run();
+  
+  if(!isRunning)
+    motorController -> driveMotor(0, 0);
+
 }
