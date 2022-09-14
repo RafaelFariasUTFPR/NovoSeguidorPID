@@ -58,7 +58,8 @@ public:
     Pid pidLeft;
     Pid pidRight;
 
-    float maxSpeed = 0.4;
+    float maxSpeed = 0.5;
+    float motorLimiter = 1; //Limite maximo do motor
 
 private:
     float calculateSensValue();

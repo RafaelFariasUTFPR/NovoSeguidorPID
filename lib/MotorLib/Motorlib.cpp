@@ -64,7 +64,7 @@ void Tb6612fng::motorSetup()
 	pinMode(BIN2, OUTPUT);
 	pinMode(PWMB, OUTPUT);
 
-	digitalWrite(STBY, HIGH);
+	digitalWrite(STBY, LOW);
 
 	Serial.println("MotorAtivado");
 
@@ -114,6 +114,15 @@ void Tb6612fng::driveMotor(float leftMotor, float rightMotor)
 	int leftVal = int (leftMotor * 255);
 	int rightVal = int (rightMotor * 255);
 
+	if(leftVal && rightVal == 0)
+	{
+		digitalWrite(STBY, LOW);
+		return;
+	}
+	digitalWrite(STBY, HIGH);
+
+		
+
 	if(leftVal > 255)
 		leftVal = 255;
 	if(leftVal < -255)
@@ -139,7 +148,7 @@ void Tb6612fng::driveMotor(float leftMotor, float rightMotor)
 		rightVal *= -1;
 	if(leftVal < 0)
 		leftVal *= -1;
-	
+	/*
 	if(rightVal > 0)
 		rightVal -= 255;
 	if(leftVal > 0)
@@ -149,12 +158,26 @@ void Tb6612fng::driveMotor(float leftMotor, float rightMotor)
 		rightVal *= -1;
 	if(leftVal < 0)
 		leftVal *= -1;
+	*/
 
-	Serial.print(abs(leftVal));
-	Serial.print(", ");
-	Serial.println(abs(rightVal));
+	//Serial.print(abs(leftVal));
+	//Serial.print(", ");
+	//Serial.println(abs(rightVal));
 
 	ledcWrite(PWM_Left, abs(leftVal));
 	ledcWrite(PWM_Right, abs(rightVal));
+
+}
+
+void Tb6612fng::restartMotor()
+{
+	ledcWrite(PWM_Right, 0);
+	ledcWrite(PWM_Left, 0);
+	digitalWrite(STBY, LOW);
+	setRightMotorForward();
+	setLeftMotorForward();
+	delay(1000);
+	digitalWrite(STBY, LOW);
+
 
 }

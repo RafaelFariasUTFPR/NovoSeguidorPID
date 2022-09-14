@@ -25,6 +25,8 @@ public:
 	void setLeftMotorBackward();
 	void setRightMotorBackward();
 
+	void restartMotor();
+
 
 
 	int PWMA, AIN2, AIN1, STBY, BIN2, BIN1, PWMB, PWM_Left, 

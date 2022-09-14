@@ -82,7 +82,7 @@ Tb6612fng motorController(PWMA, AIN2, AIN1, STBY, BIN2, BIN1,
   PWMB, PWM_Left, PWM_Right, PWM_Res, PWM_Freq);
 
 //Criando o seguidor em si, e passando os valores das constantes
-LineFollowerAlgorithm lineFollower(Pid(0.1, 0.0002, 0), motorController);
+LineFollowerAlgorithm lineFollower(Pid(0.12, 0.001, 0.01), motorController);
 
 //Adiciona os sensores ao algoritimo
 void addSensors()
@@ -101,6 +101,8 @@ void addSensors()
 
 void sendAnalogRead()
 {
+  if(lineFollower.isRunning)
+    return;
   bluetoothModule.print(lineFollower.sensorArr[0].readValueAnalog());
   bluetoothModule.print(",");
   bluetoothModule.print(lineFollower.sensorArr[1].readValueAnalog());
@@ -125,6 +127,8 @@ void sendAnalogRead()
 
 void sendMidPoint()
 {
+  if(lineFollower.isRunning)
+    return;
   bluetoothModule.print(lineFollower.sensorArr[0].midPoint);
   bluetoothModule.print(",");
   bluetoothModule.print(lineFollower.sensorArr[1].midPoint);
@@ -158,12 +162,20 @@ void sendPID()
   bluetoothModule.print(lineFollower.maxSpeed);
   bluetoothModule.println();
 
+  Serial.print(lineFollower.pidLeft.p);
+  Serial.print(",");
+  Serial.print(lineFollower.pidLeft.i);
+  Serial.print(",");
+  Serial.print(lineFollower.pidLeft.d);
+  Serial.print(",");
+  Serial.print(lineFollower.maxSpeed);
+  Serial.println();
+
 }
 
 void setup() 
 {
   Serial.begin(115200);  
-  Serial.println(1);
   
   //Adiciona os sensores ao seguidor
   addSensors();
@@ -194,6 +206,10 @@ void chanchePID(float variation, char c)
     lineFollower.pidLeft.d += variation;
     lineFollower.pidRight.d += variation;
     break;
+  case 'm':
+    lineFollower.maxSpeed += variation;
+    break;
+  
   
   default:
     break;
@@ -210,8 +226,8 @@ void loop()
   if (bluetoothModule.available()) //Check if we receive anything from Bluetooth
   {
     int incoming = bluetoothModule.read();
-    // Serial.print("Received:"); 
-    // Serial.println(incoming);
+    Serial.print("Received:"); 
+    Serial.println(incoming);
 
     if(setupMode)
     {
@@ -306,8 +322,6 @@ void loop()
 
       case 49: // "1" (49) - Nivel 1
         Serial.println("Nivel 1");
-
-
         break;
 
       case 50: // "2" (50) - Nivel 2
@@ -319,6 +333,12 @@ void loop()
         Serial.println("Nivel 3");
 
         break;
+
+      case 114: // "r" (114) - restartMotor
+        Serial.println("Restart");
+        lineFollower.motorController->restartMotor();
+
+        break;
       }
     }
    
@@ -327,7 +347,7 @@ void loop()
 
   lineFollower.process();
 
-
+  delay(10);
   //lineFollower.printAllSensors();
 
 }

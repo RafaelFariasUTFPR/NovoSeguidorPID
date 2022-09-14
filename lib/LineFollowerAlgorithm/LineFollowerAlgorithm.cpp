@@ -52,19 +52,29 @@ void LineFollowerAlgorithm::run()
 
   float leftMotor = maxSpeed;
   float rightMotor = maxSpeed;
-  leftMotor += pidLeft.calculate(calculateSensValue() - readingGoal);
-  rightMotor += pidRight.calculate(readingGoal - calculateSensValue());
+  leftMotor += pidLeft.calculate(readingGoal - calculateSensValue());
+  rightMotor += pidRight.calculate(calculateSensValue() - readingGoal);
   
 
 
 
+
+
+
+  if(leftMotor > motorLimiter)
+    leftMotor = motorLimiter;
+  if(leftMotor < -motorLimiter)
+    leftMotor = -motorLimiter;
+  if(rightMotor > motorLimiter)
+    rightMotor = motorLimiter;
+  if(rightMotor < -motorLimiter)
+    rightMotor = -motorLimiter;
+  
 
   //Serial.print(leftMotor);
   //Serial.print(", ");
   //Serial.println(rightMotor);
   
-
-
 
 
   motorController -> driveMotor(leftMotor, rightMotor);
@@ -83,7 +93,33 @@ float LineFollowerAlgorithm::calculateSensValue()
   {
     if(sensorArr[i].readValue())
     {
-      result += float(i);
+      float errorMultiplier;
+      switch (i)
+      {
+      case 2:
+        errorMultiplier = 2.8;
+        break;
+      case 3:
+        errorMultiplier = 3.5;
+        break;
+      case 4:
+        errorMultiplier = 4.3;
+        break;
+      case 5:
+        errorMultiplier = 4.7;
+        break;
+      case 6:
+        errorMultiplier = 5.5;
+        break;    
+      case 7:
+        errorMultiplier = 6.2;
+        break;     
+      default:
+        errorMultiplier = float(i);
+        break;
+      }
+
+      result += errorMultiplier;
       numOfTrueSensors++;
     }
   }
