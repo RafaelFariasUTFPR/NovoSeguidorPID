@@ -80,8 +80,8 @@ void Tb6612fng::motorSetup()
 
 void Tb6612fng::setLeftMotorForward()
 {
-	digitalWrite(AIN1, HIGH);
-	digitalWrite(AIN2, LOW);
+	digitalWrite(AIN1, LOW);
+	digitalWrite(AIN2, HIGH);
 
 }
 
@@ -94,8 +94,8 @@ void Tb6612fng::setRightMotorForward()
 
 void Tb6612fng::setLeftMotorBackward()
 {
-	digitalWrite(AIN1, LOW);
-	digitalWrite(AIN2, HIGH);
+	digitalWrite(AIN1, HIGH);
+	digitalWrite(AIN2, LOW);
 
 }
 
@@ -114,6 +114,17 @@ void Tb6612fng::driveMotor(float leftMotor, float rightMotor)
 	int leftVal = int (leftMotor * 255);
 	int rightVal = int (rightMotor * 255);
 
+	if(leftVal > 255)
+		leftVal = 255;
+	if(leftVal < -255)
+		leftVal = -255;
+	if(rightVal > 255)
+		rightVal = 255;
+	if(rightVal < -255)
+		rightVal = -255;
+
+  
+
 	if (leftVal > 0)
 		setLeftMotorForward();
 	else
@@ -123,6 +134,25 @@ void Tb6612fng::driveMotor(float leftMotor, float rightMotor)
 		setRightMotorForward();
 	else
 		setRightMotorBackward();
+
+	if(rightVal < 0)
+		rightVal *= -1;
+	if(leftVal < 0)
+		leftVal *= -1;
+	
+	if(rightVal > 0)
+		rightVal -= 255;
+	if(leftVal > 0)
+		leftVal -= 255;
+
+	if(rightVal < 0)
+		rightVal *= -1;
+	if(leftVal < 0)
+		leftVal *= -1;
+
+	Serial.print(abs(leftVal));
+	Serial.print(", ");
+	Serial.println(abs(rightVal));
 
 	ledcWrite(PWM_Left, abs(leftVal));
 	ledcWrite(PWM_Right, abs(rightVal));

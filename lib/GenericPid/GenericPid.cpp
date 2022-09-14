@@ -42,8 +42,13 @@ void Pid::setValues(Pid pidValues)
 
 	caso a linha esteja sobre o S3 o meu erro ser� de (2 - 3 = -1), ou seja preciso passar -1 como meu erro
 */
+
+
+
+
 double Pid::calculate(double error)
 {
+
 	cumulativeError += error;
 
 	//Resetando o erro acumulado ao alcan�ar o objetivo
@@ -59,6 +64,8 @@ double Pid::calculate(double error)
 	double proportional = error * p;
 	double integral = cumulativeError * i;
 	double derivative = (error - lastError) * d;
+
+
 
 
 	lastError = error;

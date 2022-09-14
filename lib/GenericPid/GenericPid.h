@@ -4,6 +4,7 @@
 #include "Arduino.h"
 
 
+
 class Pid
 {
 public:
@@ -19,8 +20,6 @@ public:
 	//Constantes, cuidado ao acessar elas para nao modificar sem querer
 	//	i normalmente eh um valor bem pequeno i = 0.000001, nunca coloque i = 0
 	double p; double i; double d;
-
-	
 
 private:
 	double cumulativeError = 0;

@@ -50,11 +50,23 @@ void LineFollowerAlgorithm::run()
 {
   calculateSensValue();
 
-  leftMotor += pidLeft.calculate(sensorValue - readingGoal);
-  rightMotor += pidRight.calculate(readingGoal - sensorValue);
+  float leftMotor = maxSpeed;
+  float rightMotor = maxSpeed;
+  leftMotor += pidLeft.calculate(calculateSensValue() - readingGoal);
+  rightMotor += pidRight.calculate(readingGoal - calculateSensValue());
+  
 
-  leftMotor *= motorMultiplier;
-  rightMotor *= motorMultiplier;
+
+
+
+  //Serial.print(leftMotor);
+  //Serial.print(", ");
+  //Serial.println(rightMotor);
+  
+
+
+
+
   motorController -> driveMotor(leftMotor, rightMotor);
 
 }
@@ -76,6 +88,13 @@ float LineFollowerAlgorithm::calculateSensValue()
     }
   }
 
+  if(numOfTrueSensors == 0)
+  {
+    outOfLine = true;
+    return readingGoal;
+  }
+  //Serial.println(result /numOfTrueSensors);
+  outOfLine = false;
   //Retorna a média dos sensores ativos
   return result / numOfTrueSensors;
 }
@@ -115,6 +134,9 @@ void LineFollowerAlgorithm::process()
     run();
   
   if(!isRunning)
+  {
     motorController -> driveMotor(0, 0);
+
+  }
 
 }

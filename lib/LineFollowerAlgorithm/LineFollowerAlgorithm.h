@@ -45,13 +45,20 @@ public:
 
     // ##### ##### #####
     
-    float motorMultiplier = 0.5;
 
     sensorTcrt5000 sensorArr [global::numberOfSensor];
     Tb6612fng* motorController;
 
-    bool isRunning = false;
+    //REMOVER O TRUE
+    bool isRunning = false; // REMOVER
+    // !!!!!!!!!!!!!!
+
     bool isCallibrating = false; // Se for true entrará no modo de calibração
+
+    Pid pidLeft;
+    Pid pidRight;
+
+    float maxSpeed = 0.4;
 
 private:
     float calculateSensValue();
@@ -65,16 +72,14 @@ private:
     float readingGoal = 4.5;
 
     float sensorValue;
-    Pid pidLeft;
-    Pid pidRight;
 
-    // Controla a velocidade dos motores -1 a 1
-    float leftMotor;
-    float rightMotor;
+
+
 	bool lineIsBlack = true;
 
-    float maxSpeed = 0.8;
     
+
+    bool outOfLine = true;
 
 
 };
