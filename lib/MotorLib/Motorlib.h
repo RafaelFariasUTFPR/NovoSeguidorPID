@@ -27,7 +27,10 @@ public:
 
 	void restartMotor();
 
+	float maxVariation = 8;
 
+	float currentLeft = 0;
+	float currentRight = 0;
 
 	int PWMA, AIN2, AIN1, STBY, BIN2, BIN1, PWMB, PWM_Left, 
 	PWM_Right, PWM_Res, PWM_Freq;

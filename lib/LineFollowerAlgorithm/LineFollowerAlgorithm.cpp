@@ -1,22 +1,34 @@
 #include "LineFollowerAlgorithm.h"
 
 
+bool almostEqual(float number, float objective, float precision)
+{
+  if(number < objective + precision && number > objective - precision)
+    return true;
+  
+  return false;
+}
+
+
 LineFollowerAlgorithm::LineFollowerAlgorithm()
 {
-    
+
 }
 
-LineFollowerAlgorithm::LineFollowerAlgorithm(Pid pidValues)
+LineFollowerAlgorithm::LineFollowerAlgorithm(Pid _pidLow, Pid _pidHigh)
 {
-    pidLeft.setValues(pidValues);
-    pidRight.setValues(pidValues);   
+  pidLow = _pidLow;
+  pidHigh = _pidHigh;
+  setPidLowValue();
+ 
 }
 
-LineFollowerAlgorithm::LineFollowerAlgorithm(Pid pidValues, Tb6612fng& _motorController)
+LineFollowerAlgorithm::LineFollowerAlgorithm(Pid _pidLow, Pid _pidHigh, Tb6612fng& _motorController)
 {
-    pidLeft.setValues(pidValues);
-    pidRight.setValues(pidValues);   
-    motorController = &_motorController;
+  pidLow = _pidLow;
+  pidHigh = _pidHigh;
+  setPidLowValue(); 
+  motorController = &_motorController;
 }
 
 
@@ -32,7 +44,6 @@ void LineFollowerAlgorithm::calibrateSensors()
       sensorArr[i].calibrate();
 }
 
-
 void LineFollowerAlgorithm::setPidValues(Pid pidValues)
 {
   pidLeft.setValues(pidValues);
@@ -45,20 +56,20 @@ void LineFollowerAlgorithm::setReadingGoal(float _readingGoal)
   readingGoal = _readingGoal;
 }
 
+void LineFollowerAlgorithm::start()
+{
+    //loadCalibration();
+}
 
 void LineFollowerAlgorithm::run()
 {
+  checkLineColor();
   calculateSensValue();
 
-  float leftMotor = maxSpeed;
-  float rightMotor = maxSpeed;
+  float leftMotor = gain;
+  float rightMotor = gain;
   leftMotor += pidLeft.calculate(readingGoal - calculateSensValue());
   rightMotor += pidRight.calculate(calculateSensValue() - readingGoal);
-  
-
-
-
-
 
 
   if(leftMotor > motorLimiter)
@@ -81,6 +92,25 @@ void LineFollowerAlgorithm::run()
 
 }
 
+void LineFollowerAlgorithm::checkLineColor()
+{
+  if(sensorArr[0].readValueAnalog() > sensorArr[0].midPoint && sensorArr[numberOfSensors-1].readValueAnalog() > sensorArr[numberOfSensors-1].midPoint)
+  {
+    for(int i = 0; i < numberOfSensors; i++)
+      sensorArr[i].lineIsBlack = false;
+    Serial.println("White");
+    return;
+  }
+  
+  if(sensorArr[0].readValueAnalog() < sensorArr[0].midPoint && sensorArr[numberOfSensors-1].readValueAnalog() < sensorArr[numberOfSensors-1].midPoint)
+  {
+    for(int i = 0; i < numberOfSensors; i++)
+      sensorArr[i].lineIsBlack = true;
+    Serial.println("Black");
+    return;
+  }
+
+}
 
 float LineFollowerAlgorithm::calculateSensValue()
 {
@@ -96,35 +126,47 @@ float LineFollowerAlgorithm::calculateSensValue()
       float errorMultiplier;
       switch (i)
       {
+      case 1:
+        errorMultiplier = 1;
+        break;
       case 2:
-        errorMultiplier = 2.8;
+        errorMultiplier = 1.8;
         break;
       case 3:
-        errorMultiplier = 3.5;
+        errorMultiplier = 3.2;
         break;
       case 4:
-        errorMultiplier = 4.3;
+        errorMultiplier = 4.1;
         break;
       case 5:
-        errorMultiplier = 4.7;
+        errorMultiplier = 4.9;
         break;
       case 6:
-        errorMultiplier = 5.5;
+        errorMultiplier = 5.8;
         break;    
       case 7:
-        errorMultiplier = 6.2;
-        break;     
+        errorMultiplier = 7.2;
+        break;   
+      case 8:
+        errorMultiplier = 8;
+        break;   
+        
       default:
         errorMultiplier = float(i);
         break;
       }
 
       result += errorMultiplier;
+      if(almostEqual(result, readingGoal, 1))
+      {
+        pidLeft.zerarError();
+        pidRight.zerarError();
+      }
       numOfTrueSensors++;
     }
   }
 
-  if(numOfTrueSensors == 0)
+  if(numOfTrueSensors == 0 || numOfTrueSensors == numberOfSensors)
   {
     outOfLine = true;
     return readingGoal;
@@ -173,6 +215,28 @@ void LineFollowerAlgorithm::process()
   {
     motorController -> driveMotor(0, 0);
 
+  }
+
+}
+
+void LineFollowerAlgorithm::saveCalibration()
+{
+  for(int i = 0; i < global::numberOfSensor; i++)
+  {
+    EEPROM.write(i, sensorArr[i].midPoint / 1000);
+    EEPROM.commit();
+
+  }
+}
+
+void LineFollowerAlgorithm::loadCalibration()
+{
+  EEPROM.begin(global::numberOfSensor);
+
+  for(int i = 0; i < global::numberOfSensor; i++)
+  {
+    sensorArr[i].midPoint = EEPROM.read(i) * 1000;
+    Serial.println (sensorArr[i].midPoint);
   }
 
 }

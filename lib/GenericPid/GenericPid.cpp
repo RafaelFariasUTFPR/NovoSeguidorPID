@@ -56,8 +56,9 @@ double Pid::calculate(double error)
 		cumulativeError = 0;
 
 	//Limitando a integral
-	if (cumulativeError > 50 / i)
-		error = 50 / i;
+	if(i)
+		if (cumulativeError > 50 / i)
+			error = 50 / i;
 
 
 	//Calculando os valores do PID
@@ -67,7 +68,7 @@ double Pid::calculate(double error)
 
 
 
-
+	//Serial.println(cumulativeError);
 	lastError = error;
 
 

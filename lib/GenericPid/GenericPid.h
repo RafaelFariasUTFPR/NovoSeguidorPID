@@ -14,6 +14,8 @@ public:
 
 	void setValues(Pid pidValues);
 
+	void zerarError(){cumulativeError = 0;}
+
 	//Funcao que realiza a computacao do pid (ValorDeObjetivo - ValorAtual)
 	double calculate(double error);
 

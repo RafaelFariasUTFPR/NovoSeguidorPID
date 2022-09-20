@@ -26,9 +26,17 @@ int sensorTcrt5000::readValueAnalog()
 
 int sensorTcrt5000::readValue()
 {
-	if (analogRead(pin) > midPoint)
+	if(lineIsBlack)
+	{
+		if (analogRead(pin) > midPoint)
+			return 1;
+		return 0;
+	}
+
+	if (analogRead(pin) < midPoint)
 		return 1;
 	return 0;
+
 }
 
 

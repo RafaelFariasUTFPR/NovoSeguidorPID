@@ -16,12 +16,12 @@
 #define STBY 2
 #define BIN1 15
 #define BIN2 18
-#define PWMB 5
+#define PWMB 12
 
 
 
-#define PWM_Left 0
-#define PWM_Right 2
+#define PWM_Left 1
+#define PWM_Right 8
 #define PWM_Res 8
 #define PWM_Freq 5000
 //  ###### ########## ######
@@ -56,6 +56,9 @@ S0                                  S9
 // ")" (41) - Encerrar calibração
 // "+" (43) - Atualizar média
 // "-" (45) - Modo setup
+// "." (46) - Modo Baixo Ganho
+// "/" (47) - Modo Alto Ganho
+
 // "1" (49) - Nivel 1
 // "2" (50) - Nivel 2
 // "3" (51) - Nivel 3
@@ -82,7 +85,13 @@ Tb6612fng motorController(PWMA, AIN2, AIN1, STBY, BIN2, BIN1,
   PWMB, PWM_Left, PWM_Right, PWM_Res, PWM_Freq);
 
 //Criando o seguidor em si, e passando os valores das constantes
-LineFollowerAlgorithm lineFollower(Pid(0.12, 0.001, 0.01), motorController);
+Pid pidLow(0.25, 0.000001, 0.72);
+Pid pidHigh(0.25, 0.000001, 0.72);
+
+LineFollowerAlgorithm lineFollower(pidLow, pidHigh, motorController);
+
+bool lowGainMode = false;
+
 
 //Adiciona os sensores ao algoritimo
 void addSensors()
@@ -153,23 +162,48 @@ void sendMidPoint()
 
 void sendPID()
 {
-  bluetoothModule.print(lineFollower.pidLeft.p);
+  if(lowGainMode)
+  {
+    bluetoothModule.print(lineFollower.pidLow.p, 3);
+    bluetoothModule.print(",");
+    bluetoothModule.print(lineFollower.pidLow.i * 1000, 3);
+    bluetoothModule.print(",");
+    bluetoothModule.print(lineFollower.pidLow.d, 3);
+    bluetoothModule.print(",");
+    bluetoothModule.print(lineFollower.lowGain, 3);
+    bluetoothModule.println();
+
+    Serial.print("LOW PID: ");
+    Serial.print(lineFollower.pidLow.p,3);
+    Serial.print(",");
+    Serial.print(lineFollower.pidLow.i,7);
+    Serial.print(",");
+    Serial.print(lineFollower.pidLow.d,3);
+    Serial.print(",");
+    Serial.print(lineFollower.lowGain,3);
+    Serial.println();
+    return;
+  }
+  bluetoothModule.print(lineFollower.pidHigh.p, 3);
   bluetoothModule.print(",");
-  bluetoothModule.print(lineFollower.pidLeft.i);
+  bluetoothModule.print(lineFollower.pidHigh.i * 1000, 3);
   bluetoothModule.print(",");
-  bluetoothModule.print(lineFollower.pidLeft.d);
+  bluetoothModule.print(lineFollower.pidHigh.d, 3);
   bluetoothModule.print(",");
-  bluetoothModule.print(lineFollower.maxSpeed);
+  bluetoothModule.print(lineFollower.highGain, 3);
   bluetoothModule.println();
 
-  Serial.print(lineFollower.pidLeft.p);
+  Serial.print("HIGH PID: ");
+  Serial.print(lineFollower.pidHigh.p,3);
   Serial.print(",");
-  Serial.print(lineFollower.pidLeft.i);
+  Serial.print(lineFollower.pidHigh.i,7);
   Serial.print(",");
-  Serial.print(lineFollower.pidLeft.d);
+  Serial.print(lineFollower.pidHigh.d,3);
   Serial.print(",");
-  Serial.print(lineFollower.maxSpeed);
+  Serial.print(lineFollower.highGain,3);
   Serial.println();
+
+
 
 }
 
@@ -185,29 +219,57 @@ void setup()
   bluetoothModule.begin("SEGUIDOR_ESP32");
   Serial.println("Bluetooth Device is Ready to Pair");
 
+  lineFollower.start();
   //lineFollower.calibrateSensors();
 
 
 }
 
-void chanchePID(float variation, char c)
+void changePID(float variation, char c)
 {
   switch (c)
   {
   case 'p':
-    lineFollower.pidLeft.p += variation;
-    lineFollower.pidRight.p += variation;
+    if(lowGainMode)
+    {
+      lineFollower.pidLow.p += variation;
+      //lineFollower.setPidLowValue();
+    }
+    else
+    {
+      lineFollower.pidHigh.p += variation;
+      //lineFollower.setPidHighValue();
+    }
     break;
   case 'i':
-    lineFollower.pidLeft.i += variation;
-    lineFollower.pidRight.i += variation;
+    if(lowGainMode)
+    {
+      lineFollower.pidLow.i += variation/1000;
+      //lineFollower.setPidLowValue();
+    }
+    else
+    {
+      lineFollower.pidHigh.i += variation/1000;
+      //lineFollower.setPidHighValue();
+    }
     break;
   case 'd':
-    lineFollower.pidLeft.d += variation;
-    lineFollower.pidRight.d += variation;
+    if(lowGainMode)
+    {
+      lineFollower.pidLow.d += variation;
+      //lineFollower.setPidLowValue();
+    }
+    else
+    {
+      lineFollower.pidHigh.d += variation;
+      //lineFollower.setPidHighValue();
+    }
     break;
   case 'm':
-    lineFollower.maxSpeed += variation;
+    if(lowGainMode)
+      lineFollower.lowGain += variation;
+    else
+      lineFollower.highGain += variation;
     break;
   
   
@@ -219,6 +281,7 @@ void chanchePID(float variation, char c)
 bool setupMode = false;
 
 char mode = 'p';
+
 
 void loop() 
 {
@@ -251,28 +314,36 @@ void loop()
       case 44: // "," (44) - Sair do setup
         setupMode = false;
         break;
+      case 46: // "." (46) - Modo Baixo Ganho
+        lowGainMode = true;
+        //lineFollower.setPidLowValue();
+        break;
+      case 47: // "/" (47) - Modo Alto Ganho
+        lowGainMode = false;
+        //lineFollower.setPidHighValue();
+        break;
       case 97: // "a" (97) - -0.001
-        chanchePID(-0.001, mode);
+        changePID(-0.001, mode);
         sendPID();
         break;
       case 98: // "b" (98) - -0.01
-        chanchePID(-0.01, mode);
+        changePID(-0.01, mode);
         sendPID();
         break;
       case 99: // "c" (99) - -0.1
-        chanchePID(-0.1, mode);
+        changePID(-0.1, mode);
         sendPID();
         break;
       case 100: // "d" (100) - 0.1
-        chanchePID(0.1, mode);
+        changePID(0.1, mode);
         sendPID();
         break;
       case 101: // "e" (101) - 0.01
-        chanchePID(0.01, mode);
+        changePID(0.01, mode);
         sendPID();
         break;
       case 102: // "f" (102) - 0.001
-        chanchePID(0.001, mode);
+        changePID(0.001, mode);
         sendPID();
         break;
 
@@ -347,7 +418,7 @@ void loop()
 
   lineFollower.process();
 
-  delay(10);
+  //delay(10);
   //lineFollower.printAllSensors();
 
 }
