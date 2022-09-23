@@ -19,10 +19,10 @@
 
 
 
-#define PWM_Left 1
-#define PWM_Right 8
+#define PWM_Left 0
+#define PWM_Right 12
 #define PWM_Res 8
-#define PWM_Freq 5000
+#define PWM_Freq 10000
 //  ###### ########## ######
 
 
@@ -51,8 +51,10 @@ S0                                  S9
 Tb6612fng motorController(PWMA, AIN2, AIN1, STBY, BIN2, BIN1,
   PWMB, PWM_Left, PWM_Right, PWM_Res, PWM_Freq);
 
-Pid pidLow(0.25, 0.000001, 0.32);
-Pid pidHigh(0.25, 0.000001, 0.72);
+Pid pidLow(0.233, 0.0000001, 0.755);
+//Pid pidHigh(0.186, 0.0000001, 0.52); // velocidade
+Pid pidHigh(0.220, 0.0000001, 0.52); // curva 90°
+
 
 //Criando o seguidor em si, e passando os valores das constantes
 LineFollowerAlgorithm lineFollower(pidLow, pidHigh, motorController);

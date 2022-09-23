@@ -65,7 +65,7 @@ void Remote::sendPID()
     {
         bluetoothModule.print(lineFollower->pidLow.p, 3);
         bluetoothModule.print(",");
-        bluetoothModule.print(lineFollower->pidLow.i * 1000, 3);
+        bluetoothModule.print(lineFollower->pidLow.i * 10000, 3);
         bluetoothModule.print(",");
         bluetoothModule.print(lineFollower->pidLow.d, 3);
         bluetoothModule.print(",");
@@ -85,7 +85,7 @@ void Remote::sendPID()
     }
     bluetoothModule.print(lineFollower->pidHigh.p, 3);
     bluetoothModule.print(",");
-    bluetoothModule.print(lineFollower->pidHigh.i * 1000, 3);
+    bluetoothModule.print(lineFollower->pidHigh.i * 10000, 3);
     bluetoothModule.print(",");
     bluetoothModule.print(lineFollower->pidHigh.d, 3);
     bluetoothModule.print(",");

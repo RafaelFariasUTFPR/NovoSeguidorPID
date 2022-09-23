@@ -98,7 +98,7 @@ void LineFollowerAlgorithm::checkLineColor()
   {
     for(int i = 0; i < numberOfSensors; i++)
       sensorArr[i].lineIsBlack = false;
-    Serial.println("White");
+    //Serial.println("White");
     return;
   }
   
@@ -106,12 +106,87 @@ void LineFollowerAlgorithm::checkLineColor()
   {
     for(int i = 0; i < numberOfSensors; i++)
       sensorArr[i].lineIsBlack = true;
-    Serial.println("Black");
+    //Serial.println("Black");
     return;
   }
 
 }
 
+/*float LineFollowerAlgorithm::calculateSensValue()
+{
+  float result = 0;
+
+  //Numero de sensores em cima da linha
+  int numOfTrueSensors = 0;
+  
+  for(int i = 0; i < numberOfSensors; i++)
+  {
+    if(sensorArr[i].readValue())
+    {
+      float errorMultiplier;
+      switch (i)
+      {
+      case 1:
+        errorMultiplier = 1;
+        break;
+      case 2:
+        errorMultiplier = 1.8;
+        break;
+      case 3:
+        errorMultiplier = 3.2;
+        break;
+      case 4:
+        errorMultiplier = 4.1;
+        break;
+      case 5:
+        errorMultiplier = 4.9;
+        break;
+      case 6:
+        errorMultiplier = 5.8;
+        break;    
+      case 7:
+        errorMultiplier = 7.2;
+        break;   
+      case 8:
+        errorMultiplier = 8;
+        break;   
+        
+      default:
+        errorMultiplier = float(i);
+        break;
+      }
+
+      result += errorMultiplier;
+
+      
+
+      numOfTrueSensors++;
+    }
+  }
+
+  float readingResult = result / numOfTrueSensors;
+
+  if(almostEqual(readingResult, readingGoal, 1))
+  {
+    //pidLeft.zerarError();
+    //pidRight.zerarError();
+  }
+
+  //setGain(readingResult);
+
+  if(numOfTrueSensors == 0 || numOfTrueSensors == numberOfSensors)
+  {
+    outOfLine = true;
+    setPidLowValue();
+    return readingGoal;
+  }
+
+  outOfLine = false;
+
+  //Retorna a média dos sensores ativos
+  return readingResult;
+}
+*/
 float LineFollowerAlgorithm::calculateSensValue()
 {
   float result = 0;
@@ -165,16 +240,33 @@ float LineFollowerAlgorithm::calculateSensValue()
       numOfTrueSensors++;
     }
   }
-
   if(numOfTrueSensors == 0 || numOfTrueSensors == numberOfSensors)
   {
     outOfLine = true;
     return readingGoal;
   }
+
+  setGain(result / numOfTrueSensors);
   //Serial.println(result /numOfTrueSensors);
   outOfLine = false;
   //Retorna a média dos sensores ativos
   return result / numOfTrueSensors;
+}
+
+void LineFollowerAlgorithm::setGain(float _result)
+{
+  // Almost on line
+  if(almostEqual(_result, readingGoal, 1))
+  {
+    onLineTime++;
+    if(onLineTime > cyclesOnLine)
+      setPidHighValue();
+  }
+  else
+  {
+    onLineTime = 0;
+    setPidLowValue();
+  }
 }
 
 void LineFollowerAlgorithm::printAllSensors()
@@ -212,10 +304,7 @@ void LineFollowerAlgorithm::process()
     run();
   
   if(!isRunning)
-  {
     motorController -> driveMotor(0, 0);
-
-  }
 
 }
 

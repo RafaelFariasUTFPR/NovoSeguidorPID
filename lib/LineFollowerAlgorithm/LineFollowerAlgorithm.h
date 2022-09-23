@@ -72,9 +72,12 @@ public:
     Pid pidHigh;
     
 
-    float lowGain = 0.7;
-    float highGain = 1;
-    float motorLimiter = 1; //Limite maximo do motor
+    float lowGain = 0.505;
+    //float highGain = 0.77; // Velocidade
+    float highGain = 0.62; // Curva 90°
+    
+    int cyclesOnLine = 20;
+    float motorLimiter = 0.95; //Limite maximo do motor
 
 private:
     float calculateSensValue();
@@ -82,6 +85,8 @@ private:
 
     //Calibra os sensores
     void calibrateSensors();
+
+    void setGain(float _result);
 
 
     int numberOfSensors = global::numberOfSensor;
@@ -97,6 +102,7 @@ private:
 
 
 	bool lineIsBlack = true;
+    int onLineTime;
 
     
 

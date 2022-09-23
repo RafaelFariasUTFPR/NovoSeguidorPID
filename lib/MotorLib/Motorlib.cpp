@@ -173,9 +173,9 @@ void Tb6612fng::driveMotor(float leftMotor, float rightMotor)
 		leftVal *= -1;
 	*/
 
-	//Serial.print(leftVariation);
+	//Serial.print(currentLeft);
 	//Serial.print(", ");
-	//Serial.println(rightVariation);
+	//Serial.println(currentRight);
 
 
 		
