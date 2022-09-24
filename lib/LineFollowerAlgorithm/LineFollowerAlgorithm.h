@@ -72,12 +72,12 @@ public:
     Pid pidHigh;
     
 
-    float lowGain = 0.505;
+    float lowGain = 0.500;
     //float highGain = 0.77; // Velocidade
-    float highGain = 0.62; // Curva 90°
+    float highGain = 0.59; // Curva 90°
     
     int cyclesOnLine = 20;
-    float motorLimiter = 0.95; //Limite maximo do motor
+    float motorLimiter = 0.99; //Limite maximo do motor
 
 private:
     float calculateSensValue();

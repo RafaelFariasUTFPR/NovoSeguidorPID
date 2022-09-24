@@ -149,7 +149,7 @@ void Remote::process()
 
         if(setupMode)
         {
-        switch (incoming)
+        switch (0) //incoming
         {
         case 34: // " " " (34) - Modo P
             mode = 'p';
@@ -204,7 +204,7 @@ void Remote::process()
 
         }
         }
-        else
+        else if(canChange)
         {
         switch (incoming)
         {
@@ -223,7 +223,8 @@ void Remote::process()
 
         case 37: // "%" (37) - Parar
             Serial.println("Parar"); 
-            lineFollower->isRunning = false;
+            canChange=false;
+            //lineFollower->isRunning = false;
             break;
 
         case 39: // "'" (39) - Calibrar

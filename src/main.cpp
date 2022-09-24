@@ -51,9 +51,9 @@ S0                                  S9
 Tb6612fng motorController(PWMA, AIN2, AIN1, STBY, BIN2, BIN1,
   PWMB, PWM_Left, PWM_Right, PWM_Res, PWM_Freq);
 
-Pid pidLow(0.233, 0.0000001, 0.755);
+Pid pidLow(0.26, 0.0000001, 0.655);
 //Pid pidHigh(0.186, 0.0000001, 0.52); // velocidade
-Pid pidHigh(0.220, 0.0000001, 0.52); // curva 90°
+Pid pidHigh(0.260, 0.0000001, 0.50); // curva 90°
 
 
 //Criando o seguidor em si, e passando os valores das constantes

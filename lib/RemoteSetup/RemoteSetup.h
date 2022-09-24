@@ -26,6 +26,7 @@ private:
     bool setupMode = false;
     char mode = 'p';
     bool lowGainMode = true;
+    bool canChange = true;
 
 
 };
