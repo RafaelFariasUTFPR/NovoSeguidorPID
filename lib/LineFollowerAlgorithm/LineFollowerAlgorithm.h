@@ -94,12 +94,15 @@ private:
     // Qual o objetivo, nesse caso por a linha entre o sensor S4 e S5
     float readingGoal = 4.5;
     float gain;
+    float maxCenterOffset = 1;
+    float outOfLineReading = 3;
+
     Pid pidLeft;
     Pid pidRight;
 
     float sensorValue;
 
-
+    float lastReading;
 
 	bool lineIsBlack = true;
     int onLineTime;

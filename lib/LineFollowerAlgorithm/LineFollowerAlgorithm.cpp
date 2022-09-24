@@ -112,81 +112,6 @@ void LineFollowerAlgorithm::checkLineColor()
 
 }
 
-/*float LineFollowerAlgorithm::calculateSensValue()
-{
-  float result = 0;
-
-  //Numero de sensores em cima da linha
-  int numOfTrueSensors = 0;
-  
-  for(int i = 0; i < numberOfSensors; i++)
-  {
-    if(sensorArr[i].readValue())
-    {
-      float errorMultiplier;
-      switch (i)
-      {
-      case 1:
-        errorMultiplier = 1;
-        break;
-      case 2:
-        errorMultiplier = 1.8;
-        break;
-      case 3:
-        errorMultiplier = 3.2;
-        break;
-      case 4:
-        errorMultiplier = 4.1;
-        break;
-      case 5:
-        errorMultiplier = 4.9;
-        break;
-      case 6:
-        errorMultiplier = 5.8;
-        break;    
-      case 7:
-        errorMultiplier = 7.2;
-        break;   
-      case 8:
-        errorMultiplier = 8;
-        break;   
-        
-      default:
-        errorMultiplier = float(i);
-        break;
-      }
-
-      result += errorMultiplier;
-
-      
-
-      numOfTrueSensors++;
-    }
-  }
-
-  float readingResult = result / numOfTrueSensors;
-
-  if(almostEqual(readingResult, readingGoal, 1))
-  {
-    //pidLeft.zerarError();
-    //pidRight.zerarError();
-  }
-
-  //setGain(readingResult);
-
-  if(numOfTrueSensors == 0 || numOfTrueSensors == numberOfSensors)
-  {
-    outOfLine = true;
-    setPidLowValue();
-    return readingGoal;
-  }
-
-  outOfLine = false;
-
-  //Retorna a média dos sensores ativos
-  return readingResult;
-}
-*/
 float LineFollowerAlgorithm::calculateSensValue()
 {
   float result = 0;
@@ -240,23 +165,38 @@ float LineFollowerAlgorithm::calculateSensValue()
       numOfTrueSensors++;
     }
   }
+
+  // Fazendo a volta se perder os sensores
   if(numOfTrueSensors == 0 || numOfTrueSensors == numberOfSensors)
   {
     outOfLine = true;
-    return readingGoal;
+    // Caso a ultima leitura tenha sido mais ou menos no centro
+    if(almostEqual(lastReading, readingGoal, maxCenterOffset))
+    {
+      return readingGoal;
+    }
+    // Caso a ultima leitura tenha sido para a esquerda
+    else if(lastReading < readingGoal)
+    {
+      return readingGoal - lastReading;
+    }
+
+    // Caso direita
+    return readingGoal + lastReading;
   }
 
   setGain(result / numOfTrueSensors);
   //Serial.println(result /numOfTrueSensors);
   outOfLine = false;
   //Retorna a média dos sensores ativos
+  lastReading = result / numberOfSensors;
   return result / numOfTrueSensors;
 }
 
 void LineFollowerAlgorithm::setGain(float _result)
 {
   // Almost on line
-  if(almostEqual(_result, readingGoal, 1))
+  if(almostEqual(_result, readingGoal, maxCenterOffset))
   {
     onLineTime++;
     if(onLineTime > cyclesOnLine)
