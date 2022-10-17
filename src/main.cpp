@@ -27,6 +27,7 @@
 
 
 //  ###### Sensor Setup ######
+/*
 #define S0 14
 #define S1 27
 #define S2 26
@@ -38,12 +39,32 @@
 #define S8 39
 #define S9 36
 
+*/
 /*
             S3  S4  S5  S6
     S1  S2                  S7  S8
 S0                                  S9
 
 */
+
+
+#define S2 39
+#define S1 36
+#define S3 34
+#define S4 35
+#define S5 32 //meio
+#define S6 33
+#define S7 25
+#define S8 26
+#define S9 27
+#define S10 14
+#define S11 13
+
+
+
+
+
+
 
 //  ###### ########## ######
 
@@ -65,16 +86,18 @@ Remote remote(lineFollower);
 //Adiciona os sensores ao algoritimo
 void addSensors()
 {
-  lineFollower.addSensor(sensorTcrt5000(S0, 2077), 0);
-  lineFollower.addSensor(sensorTcrt5000(S1, 2082), 1);
-  lineFollower.addSensor(sensorTcrt5000(S2, 1702), 2);
-  lineFollower.addSensor(sensorTcrt5000(S3, 1671), 3);
-  lineFollower.addSensor(sensorTcrt5000(S4, 1707), 4);
-  lineFollower.addSensor(sensorTcrt5000(S5, 2094), 5);
-  lineFollower.addSensor(sensorTcrt5000(S6, 2095), 6);
-  lineFollower.addSensor(sensorTcrt5000(S7, 2097), 7);
-  lineFollower.addSensor(sensorTcrt5000(S8, 2095), 8);
-  lineFollower.addSensor(sensorTcrt5000(S9, 2084), 9);
+  lineFollower.addSensor(sensorTcrt5000(S2, 2082), 0);
+  lineFollower.addSensor(sensorTcrt5000(S1, 1702), 1);
+  lineFollower.addSensor(sensorTcrt5000(S3, 1671), 2);
+  lineFollower.addSensor(sensorTcrt5000(S4, 1707), 3);
+  lineFollower.addSensor(sensorTcrt5000(S5, 2094), 4);
+  lineFollower.addSensor(sensorTcrt5000(S11, 2095), 5);
+  lineFollower.addSensor(sensorTcrt5000(S6, 2097), 6);
+  lineFollower.addSensor(sensorTcrt5000(S10, 2095), 7);
+  lineFollower.addSensor(sensorTcrt5000(S9, 2084), 8);
+  lineFollower.addSensor(sensorTcrt5000(S7, 2084), 9);
+  lineFollower.addSensor(sensorTcrt5000(S8, 2084), 10);
+
 }
 
 
@@ -99,6 +122,7 @@ void loop()
 
   lineFollower.process();
 
+  //lineFollower.printAllSensorsAnalog();
   //delay(10);
 }
 

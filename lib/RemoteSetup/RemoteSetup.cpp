@@ -223,8 +223,8 @@ void Remote::process()
 
         case 37: // "%" (37) - Parar
             Serial.println("Parar"); 
-            canChange=false;
-            //lineFollower->isRunning = false;
+            //canChange=false;
+            lineFollower->isRunning = false;
             break;
 
         case 39: // "'" (39) - Calibrar

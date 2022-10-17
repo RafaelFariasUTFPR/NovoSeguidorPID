@@ -124,6 +124,8 @@ float LineFollowerAlgorithm::calculateSensValue()
     if(sensorArr[i].readValue())
     {
       float errorMultiplier;
+      errorMultiplier = float(i);
+      /*
       switch (i)
       {
       case 1:
@@ -155,6 +157,7 @@ float LineFollowerAlgorithm::calculateSensValue()
         errorMultiplier = float(i);
         break;
       }
+      */
 
       result += errorMultiplier;
       if(almostEqual(result, readingGoal, 1))
@@ -169,7 +172,7 @@ float LineFollowerAlgorithm::calculateSensValue()
   // Fazendo a volta se perder os sensores
   if(numOfTrueSensors == 0 || numOfTrueSensors == numberOfSensors)
   {
-    outOfLine = true;
+    outOfTrack = true;
     // Caso a ultima leitura tenha sido mais ou menos no centro
     if(almostEqual(lastReading, readingGoal, maxCenterOffset))
     {
@@ -178,16 +181,19 @@ float LineFollowerAlgorithm::calculateSensValue()
     // Caso a ultima leitura tenha sido para a esquerda
     else if(lastReading < readingGoal)
     {
+      outOfLine = true;
       return readingGoal - lastReading;
     }
 
     // Caso direita
+    outOfLine = true;
     return readingGoal + lastReading;
   }
 
   setGain(result / numOfTrueSensors);
-  //Serial.println(result /numOfTrueSensors);
+  outOfTrack = false;
   outOfLine = false;
+
   //Retorna a média dos sensores ativos
   lastReading = result / numberOfSensors;
   return result / numOfTrueSensors;
@@ -195,18 +201,27 @@ float LineFollowerAlgorithm::calculateSensValue()
 
 void LineFollowerAlgorithm::setGain(float _result)
 {
+  if(outOfLine && outOfTrack)
+  {
+    setPidOffLineValue();
+    onLineTime = 0;
+    return;
+  }
   // Almost on line
   if(almostEqual(_result, readingGoal, maxCenterOffset))
   {
     onLineTime++;
     if(onLineTime > cyclesOnLine)
       setPidHighValue();
+    return;
   }
-  else
+  if(!outOfTrack)
   {
     onLineTime = 0;
     setPidLowValue();
+    return;
   }
+
 }
 
 void LineFollowerAlgorithm::printAllSensors()

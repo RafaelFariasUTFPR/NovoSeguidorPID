@@ -13,7 +13,7 @@
 
 namespace global
 {
-    const int numberOfSensor = 10;
+    const int numberOfSensor = 11;
 }
 
 bool almostEqual(float number, float objective, float precision);
@@ -35,6 +35,8 @@ public:
 
     void setPidLowValue(){setPidValues(pidLow); gain = lowGain;}
     void setPidHighValue(){setPidValues(pidHigh); gain = highGain;}
+    void setPidOffLineValue(){setPidValues(pidLow); gain = offLineGain;}
+
 
     void setReadingGoal(float _readingGoal);
 
@@ -75,6 +77,7 @@ public:
     float lowGain = 0.500;
     //float highGain = 0.77; // Velocidade
     float highGain = 0.59; // Curva 90°
+    float offLineGain = 0.2;
     
     int cyclesOnLine = 20;
     float motorLimiter = 0.99; //Limite maximo do motor
@@ -92,7 +95,7 @@ private:
     int numberOfSensors = global::numberOfSensor;
     
     // Qual o objetivo, nesse caso por a linha entre o sensor S4 e S5
-    float readingGoal = 4.5;
+    float readingGoal = 5;
     float gain;
     float maxCenterOffset = 1;
     float outOfLineReading = 3;
@@ -108,8 +111,8 @@ private:
     int onLineTime;
 
     
-
-    bool outOfLine = true;
+    bool outOfTrack = false;
+    bool outOfLine = false;
 
 
 };
