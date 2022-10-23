@@ -9,6 +9,7 @@
 
 
 //  ###### Motor Setup ######
+/*
 #define PWMA 16
 #define AIN2 4
 #define AIN1 0
@@ -17,6 +18,16 @@
 #define BIN2 18
 #define PWMB 12
 
+
+*/
+
+#define PWMA 23
+#define AIN2 22
+#define AIN1 21
+#define STBY 19
+#define BIN1 18
+#define BIN2 5
+#define PWMB 17
 
 
 #define PWM_Left 0
@@ -62,7 +73,8 @@ S0                                  S9
 
 
 
-
+#define SR 4
+#define LED1_PIN 12
 
 
 
@@ -72,9 +84,9 @@ S0                                  S9
 Tb6612fng motorController(PWMA, AIN2, AIN1, STBY, BIN2, BIN1,
   PWMB, PWM_Left, PWM_Right, PWM_Res, PWM_Freq);
 
-Pid pidLow(0.26, 0.0000001, 0.655);
-//Pid pidHigh(0.186, 0.0000001, 0.52); // velocidade
-Pid pidHigh(0.260, 0.0000001, 0.50); // curva 90°
+Pid pidLow(0.3, 0.0000001, 0.655);
+Pid pidHigh(0.27, 0.0000001, 0.32); // velocidade
+//Pid pidHigh(0.160, 0.0000001, 0.50); // curva 90°
 
 
 //Criando o seguidor em si, e passando os valores das constantes
@@ -97,7 +109,8 @@ void addSensors()
   lineFollower.addSensor(sensorTcrt5000(S9, 2084), 8);
   lineFollower.addSensor(sensorTcrt5000(S7, 2084), 9);
   lineFollower.addSensor(sensorTcrt5000(S8, 2084), 10);
-
+  lineFollower.rightSensorPin = SR;
+  lineFollower.ledPin = LED1_PIN;
 }
 
 
@@ -112,6 +125,8 @@ void setup()
   //Calibração
   lineFollower.start();
 
+  setCpuFrequencyMhz(240);
+  Serial.println(getCpuFrequencyMhz());
 
 }
 
@@ -122,7 +137,9 @@ void loop()
 
   lineFollower.process();
 
-  //lineFollower.printAllSensorsAnalog();
+  //Serial.println(digitalRead(SR));
+  //lineFollower.printAllSensors();
+  //Serial.print(lineFollower.isRunning);
   //delay(10);
 }
 

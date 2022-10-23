@@ -40,6 +40,7 @@ void LineFollowerAlgorithm::addSensor(sensorTcrt5000 sensor, int index)
 
 void LineFollowerAlgorithm::calibrateSensors()
 {
+  digitalWrite(ledPin, HIGH);
     for(int i = 0; i < numberOfSensors; i++)
       sensorArr[i].calibrate();
 }
@@ -58,18 +59,22 @@ void LineFollowerAlgorithm::setReadingGoal(float _readingGoal)
 
 void LineFollowerAlgorithm::start()
 {
+  pinMode(rightSensorPin, INPUT);
+  pinMode(ledPin, OUTPUT);
+  for(int i = 0; i < numberOfSensors; i++)
+    sensorArr[i].lineIsBlack = lineIsBlack;
     //loadCalibration();
 }
 
 void LineFollowerAlgorithm::run()
 {
-  checkLineColor();
-  calculateSensValue();
+  //checkLineColor();
+  float sensVal = calculateSensValue();
 
   float leftMotor = gain;
   float rightMotor = gain;
-  leftMotor += pidLeft.calculate(readingGoal - calculateSensValue());
-  rightMotor += pidRight.calculate(calculateSensValue() - readingGoal);
+  leftMotor += pidLeft.calculate(readingGoal - sensVal);
+  rightMotor += pidRight.calculate(sensVal - readingGoal);
 
 
   if(leftMotor > motorLimiter)
@@ -81,10 +86,12 @@ void LineFollowerAlgorithm::run()
   if(rightMotor < -motorLimiter)
     rightMotor = -motorLimiter;
   
-
-  //Serial.print(leftMotor);
+  
+  //Serial.print(sensVal);
   //Serial.print(", ");
   //Serial.println(rightMotor);
+  
+  
   
 
 
@@ -119,45 +126,58 @@ float LineFollowerAlgorithm::calculateSensValue()
   //Numero de sensores em cima da linha
   int numOfTrueSensors = 0;
   
+  
+
   for(int i = 0; i < numberOfSensors; i++)
   {
+
     if(sensorArr[i].readValue())
     {
       float errorMultiplier;
       errorMultiplier = float(i);
-      /*
+      
+
       switch (i)
       {
+      case 0:
+        errorMultiplier = 0;
+        break;
       case 1:
         errorMultiplier = 1;
         break;
       case 2:
-        errorMultiplier = 1.8;
+        errorMultiplier = 2;
         break;
       case 3:
-        errorMultiplier = 3.2;
+        errorMultiplier = 3;
         break;
       case 4:
-        errorMultiplier = 4.1;
+        errorMultiplier = 4;
         break;
       case 5:
-        errorMultiplier = 4.9;
+        errorMultiplier = 5;
         break;
       case 6:
-        errorMultiplier = 5.8;
+        errorMultiplier = 6;
         break;    
       case 7:
-        errorMultiplier = 7.2;
+        errorMultiplier = 7;
         break;   
       case 8:
         errorMultiplier = 8;
         break;   
-        
+      case 9:
+        errorMultiplier = 9;
+        break;  
+      case 10:
+        errorMultiplier = 8;
+        break;    
       default:
         errorMultiplier = float(i);
         break;
       }
-      */
+      
+
 
       result += errorMultiplier;
       if(almostEqual(result, readingGoal, 1))
@@ -168,6 +188,10 @@ float LineFollowerAlgorithm::calculateSensValue()
       numOfTrueSensors++;
     }
   }
+  if(numOfTrueSensors >= 5)
+    lastCrossing = millis();
+
+  //Serial.println(lastReading);
 
   // Fazendo a volta se perder os sensores
   if(numOfTrueSensors == 0 || numOfTrueSensors == numberOfSensors)
@@ -179,23 +203,35 @@ float LineFollowerAlgorithm::calculateSensValue()
       return readingGoal;
     }
     // Caso a ultima leitura tenha sido para a esquerda
-    else if(lastReading < readingGoal)
+    if(lastReading < readingGoal)
     {
       outOfLine = true;
-      return readingGoal - lastReading;
+      return 0;
+    }
+    if(readingGoal > lastReading)
+    {
+      // Caso direita
+      outOfLine = true;
+      return (float)numberOfSensors;
     }
 
-    // Caso direita
-    outOfLine = true;
-    return readingGoal + lastReading;
-  }
 
-  setGain(result / numOfTrueSensors);
+
+  }
+  if( numOfTrueSensors)
+    setGain(result / numOfTrueSensors);
   outOfTrack = false;
   outOfLine = false;
 
   //Retorna a média dos sensores ativos
-  lastReading = result / numberOfSensors;
+  if(!numberOfSensors)
+  {
+    
+  lastReading = 0;
+  return 0;
+
+  }
+  lastReading = ((result / numOfTrueSensors) + lastReading)/2;
   return result / numOfTrueSensors;
 }
 
@@ -252,8 +288,16 @@ void LineFollowerAlgorithm::testMotors()
 
 void LineFollowerAlgorithm::process()
 {
+  if(!isCallibrating)
+  digitalWrite(ledPin, LOW);
   if(isCallibrating)
     calibrateSensors();
+
+  if(digitalRead(rightSensorPin))
+  {
+    if(millis() - 2000 > lastCrossing)
+      isRunning = false;
+  }
 
   if(isRunning)
     run();
@@ -265,6 +309,7 @@ void LineFollowerAlgorithm::process()
 
 void LineFollowerAlgorithm::saveCalibration()
 {
+  return;
   for(int i = 0; i < global::numberOfSensor; i++)
   {
     EEPROM.write(i, sensorArr[i].midPoint / 1000);
@@ -275,6 +320,7 @@ void LineFollowerAlgorithm::saveCalibration()
 
 void LineFollowerAlgorithm::loadCalibration()
 {
+  return;
   EEPROM.begin(global::numberOfSensor);
 
   for(int i = 0; i < global::numberOfSensor; i++)

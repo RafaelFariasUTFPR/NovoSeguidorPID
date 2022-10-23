@@ -149,7 +149,7 @@ void Remote::process()
 
         if(setupMode)
         {
-        switch (0) //incoming
+        switch (incoming) //incoming
         {
         case 34: // " " " (34) - Modo P
             mode = 'p';
@@ -204,14 +204,14 @@ void Remote::process()
 
         }
         }
-        else if(canChange)
+        if(!setupMode)
         {
         switch (incoming)
         {
         case 33: // "!" (33) - Transmitir leitura
             if(lineFollower->isRunning)
                 break;
-            sendAnalogRead();
+            //sendAnalogRead();
             lineFollower->printAllSensorsAnalog();
 
             break;

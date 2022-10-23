@@ -68,16 +68,17 @@ public:
 
     bool isCallibrating = false; // Se for true entrará no modo de calibração
 
-    
+    int rightSensorPin;
+    int ledPin;
 
     Pid pidLow;
     Pid pidHigh;
     
 
-    float lowGain = 0.500;
+    float lowGain = 0.34;
     //float highGain = 0.77; // Velocidade
-    float highGain = 0.59; // Curva 90°
-    float offLineGain = 0.2;
+    float highGain = 0.33; // Curva 90°
+    float offLineGain = 0.3;
     
     int cyclesOnLine = 20;
     float motorLimiter = 0.99; //Limite maximo do motor
@@ -95,7 +96,7 @@ private:
     int numberOfSensors = global::numberOfSensor;
     
     // Qual o objetivo, nesse caso por a linha entre o sensor S4 e S5
-    float readingGoal = 5;
+    float readingGoal = 5.5;
     float gain;
     float maxCenterOffset = 1;
     float outOfLineReading = 3;
@@ -105,7 +106,7 @@ private:
 
     float sensorValue;
 
-    float lastReading;
+    float lastReading = 0;
 
 	bool lineIsBlack = true;
     int onLineTime;
@@ -114,6 +115,8 @@ private:
     bool outOfTrack = false;
     bool outOfLine = false;
 
+
+    unsigned long lastCrossing = 0;
 
 };
 

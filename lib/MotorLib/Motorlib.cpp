@@ -87,8 +87,8 @@ void Tb6612fng::setLeftMotorForward()
 
 void Tb6612fng::setRightMotorForward()
 {
-	digitalWrite(BIN1, HIGH);
-	digitalWrite(BIN2, LOW);
+	digitalWrite(BIN1, LOW);
+	digitalWrite(BIN2, HIGH);
 
 }
 
@@ -101,8 +101,8 @@ void Tb6612fng::setLeftMotorBackward()
 
 void Tb6612fng::setRightMotorBackward()
 {
-	digitalWrite(BIN1, LOW);
-	digitalWrite(BIN2, HIGH);
+	digitalWrite(BIN1, HIGH);
+	digitalWrite(BIN2, LOW);
 
 }
 

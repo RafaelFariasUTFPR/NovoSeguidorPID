@@ -44,10 +44,10 @@ void sensorTcrt5000::calibrate()
 {
 
 	if(readValueAnalog() < lowValue)
-		lowValue = readValueAnalog();
+		lowValue = (readValueAnalog() + lowValue)/2;
 
 	if(readValueAnalog() > highValue)
-		highValue = readValueAnalog();
+		highValue = (readValueAnalog() + highValue)/2;
 	
 	midPoint = (lowValue + highValue) / 2; 
 	
